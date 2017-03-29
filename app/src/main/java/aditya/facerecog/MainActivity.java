@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
         public void run() {
             try {
-                InetAddress serverAddr = InetAddress.getByName("192.168.2.11");
+                InetAddress serverAddr = InetAddress.getByName("192.168.43.67");
                 Log.d("ClientActivity", "C: Connecting...");
                 socket = new Socket(serverAddr, 5000);
                 connected = true;

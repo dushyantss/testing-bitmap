@@ -164,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("ClientActivity", "C: Connecting...");
                 socket = new Socket(serverAddr, 5000);
                 connected = true;
-                while (connected) {
                     try {
 
 
@@ -193,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         Log.e("ClientActivity", "S: Error", e);
                     }
-                }
+                
                 socket.close();
                 Log.d("ClientActivity", "C: Closed.");
             } catch (Exception e) {

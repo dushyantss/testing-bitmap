@@ -128,8 +128,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void decodeFile(){
-        int targetW = 720;
-        int targetH = 480;
+        int targetL = 720;
+        int targetS = 480;
 
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
@@ -138,16 +138,20 @@ public class MainActivity extends AppCompatActivity {
         int photoW = bmOptions.outWidth;
         int photoH = bmOptions.outHeight;
 
+        boolean isPortrait = photoH >= photoW;
+
         // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+        long scaleFactor = isPortrait ? photoH / targetL : photoW / targetL;
 
         // Decode the image file into a Bitmap sized to fill the View
         bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inSampleSize = (int) scaleFactor;
         bmOptions.inPurgeable = true;
 
         Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        imgbyte = getBytesFromBitmap(bitmap);
+        Bitmap newBitmap = Bitmap.createScaledBitmap(bitmap, isPortrait ? targetS : targetL,
+                isPortrait ? targetL : targetS, false);
+        imgbyte = getBytesFromBitmap(newBitmap);
     }
 
     public byte[] getBytesFromBitmap(Bitmap bitmap) {

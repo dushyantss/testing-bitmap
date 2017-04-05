@@ -29,10 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_TAKE_PHOTO = 1;
 
-    private Socket socket;
-
-    private boolean connected = false;
-
     private byte [] imgbyte;
 
     private void dispatchTakePictureIntent() {
@@ -166,8 +162,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 InetAddress serverAddr = InetAddress.getByName("192.168.43.67");
                 Log.d("ClientActivity", "C: Connecting...");
-                socket = new Socket(serverAddr, 5000);
-                connected = true;
+                Socket socket = new Socket(serverAddr, 5000);
                     try {
 
 
@@ -201,7 +196,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("ClientActivity", "C: Closed.");
             } catch (Exception e) {
                 Log.e("ClientActivity", "C: Error", e);
-                connected = false;
             }
         }
     }

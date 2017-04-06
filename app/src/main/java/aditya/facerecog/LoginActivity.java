@@ -1,6 +1,7 @@
 package aditya.facerecog;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,17 +23,22 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         Button button = (Button) findViewById(R.id.submit);
+        final TextInputEditText username = (TextInputEditText) findViewById(R.id.username);
+        final TextInputEditText password = (TextInputEditText) findViewById(R.id.password);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AuthThread().run();
+                new AuthTask().execute(username.getText().toString(),
+                        password.getText().toString());
             }
         });
     }
 
-    class AuthThread implements Runnable {
+    class AuthTask extends AsyncTask<String, Object, Integer> {
 
-        public void run() {
+        @Override
+        protected Integer doInBackground(String... vals) {
+            int result = 0;
             try {
                 InetAddress serverAddr = InetAddress.getByName("192.168.43.67");
                 Log.d("ClientActivity", "C: Connecting...");
@@ -59,30 +65,12 @@ public class LoginActivity extends AppCompatActivity {
                     OutputStream output = socket.getOutputStream();
                     InputStream input = socket.getInputStream();
                     Log.d("ClientActivity", "C: image writing.");
-                    final TextInputEditText usernameField = (TextInputEditText) findViewById(R.id.username);
-                    final TextInputEditText passwordField = (TextInputEditText) findViewById(R.id.password);
-                    String username = usernameField.getText().toString();
-                    String password = passwordField.getText().toString();
+                    Object username = vals[0];
+                    Object password = vals[1];
                     String auth = username + " " + password;
                     output.write(auth.getBytes());
                     output.flush();
-                    if (input.read() != 1) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(LoginActivity.this, "Please check username password", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    } else {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(LoginActivity.this, "Sucess", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                finish();
-                            }
-                        });
-                    }
+                    result = input.read();
                     // out.println("Hey Server!");
                     Log.d("ClientActivity", "C: Sent.");
                     output.close();
@@ -95,6 +83,20 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d("ClientActivity", "C: Closed.");
             } catch (Exception e) {
                 Log.e("ClientActivity", "C: Error", e);
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            if (integer == 0) {
+                Toast.makeText(LoginActivity.this, "Please check username password", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(LoginActivity.this, "Sucess", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                finish();
             }
         }
     }

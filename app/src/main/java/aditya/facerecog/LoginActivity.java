@@ -67,11 +67,21 @@ public class LoginActivity extends AppCompatActivity {
                     output.write(auth.getBytes());
                     output.flush();
                     if (input.read() != 1) {
-                        Toast.makeText(LoginActivity.this, "Please check username password", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(LoginActivity.this, "Please check username password", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     } else {
-                        Toast.makeText(LoginActivity.this, "Sucess", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        finish();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(LoginActivity.this, "Sucess", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                finish();
+                            }
+                        });
                     }
                     // out.println("Hey Server!");
                     Log.d("ClientActivity", "C: Sent.");

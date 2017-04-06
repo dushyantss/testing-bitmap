@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -62,13 +63,13 @@ public class LoginActivity extends AppCompatActivity {
                                 .getOutputStream())), true);*/
                     // WHERE YOU ISSUE THE COMMANDS
 
-                    OutputStream output = socket.getOutputStream();
+                    PrintWriter output = new PrintWriter(socket.getOutputStream());
                     InputStream input = socket.getInputStream();
                     Log.d("ClientActivity", "C: image writing.");
                     Object username = vals[0];
                     Object password = vals[1];
                     String auth = username + " " + password;
-                    output.write(auth.getBytes());
+                    output.write(auth);
                     output.flush();
                     result = input.read();
                     // out.println("Hey Server!");

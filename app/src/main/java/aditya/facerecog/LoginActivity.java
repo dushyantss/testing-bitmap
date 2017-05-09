@@ -1,17 +1,15 @@
 package aditya.facerecog;
 
-import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -35,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    class AuthTask extends AsyncTask<String, Object, Integer> {
+    private class AuthTask extends AsyncTask<String, Object, Integer> {
 
         @Override
         protected Integer doInBackground(String... vals) {
@@ -68,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d("ClientActivity", "C: image writing.");
                     Object username = vals[0];
                     Object password = vals[1];
-                    String auth = username + " " + password;
+                    String auth = username + "/" + password;
                     output.write(auth);
                     output.flush();
                     result = input.read();
@@ -95,9 +93,9 @@ public class LoginActivity extends AppCompatActivity {
             if (integer == 0) {
                 Toast.makeText(LoginActivity.this, "Please check username password", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(LoginActivity.this, "Sucess", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                finish();
+                Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
+//                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+//                finish();
             }
         }
     }

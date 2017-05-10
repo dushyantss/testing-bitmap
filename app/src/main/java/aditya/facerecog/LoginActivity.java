@@ -9,7 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -33,11 +34,11 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private class AuthTask extends AsyncTask<String, Object, Integer> {
+    private class AuthTask extends AsyncTask<String, Object, String> {
 
         @Override
-        protected Integer doInBackground(String... vals) {
-            int result = 0;
+        protected String doInBackground(String... vals) {
+            String result = null;
             try {
                 InetAddress serverAddr = InetAddress.getByName("192.168.43.67");
                 Log.d("ClientActivity", "C: Connecting...");
@@ -62,14 +63,14 @@ public class LoginActivity extends AppCompatActivity {
                     // WHERE YOU ISSUE THE COMMANDS
 
                     PrintWriter output = new PrintWriter(socket.getOutputStream());
-                    InputStream input = socket.getInputStream();
+                    BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     Log.d("ClientActivity", "C: image writing.");
                     Object username = vals[0];
                     Object password = vals[1];
                     String auth = username + "/" + password;
                     output.write(auth);
                     output.flush();
-                    result = input.read();
+                    result = input.readLine();
                     // out.println("Hey Server!");
                     Log.d("ClientActivity", "C: Sent.");
                     output.close();
@@ -88,9 +89,9 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Integer integer) {
-            super.onPostExecute(integer);
-            if (integer == 0) {
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            if (result.equalsIgnoreCase("0")) {
                 Toast.makeText(LoginActivity.this, "Please check username password", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();

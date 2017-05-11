@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">FaceRecog</string>
-    <string name="take_picture">Take Picture</string>
+  <string name="app_name">FaceRecog</string>
+  <string name="take_picture">Take Picture</string>
+
 </resources>

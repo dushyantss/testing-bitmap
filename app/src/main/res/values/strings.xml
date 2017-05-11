@@ -2,4 +2,30 @@
   <string name="app_name">FaceRecog</string>
   <string name="take_picture">Take Picture</string>
 
+  <array name="courses_array">
+    <item>B.Tech</item>
+    <item>M.Tech</item>
+  </array>
+  
+  <array name="semesters_array">
+    <item>First</item>
+    <item>Second</item>
+    <item>Third</item>
+    <item>Fourth</item>
+    <item>Fifth</item>
+    <item>Sixth</item>
+    <item>Seventh</item>
+    <item>Eighth</item>
+  </array>
+  
+  <array name="branches_array">
+    <item>CS</item>
+    <item>CIVIL</item>
+    <item>IT</item>
+    <item>ECE</item>
+    <item>EIC</item>
+    <item>EE</item>
+    <item>ME</item>
+  </array>
+
 </resources>

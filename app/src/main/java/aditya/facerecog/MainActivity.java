@@ -52,6 +52,10 @@ public class MainActivity extends AppCompatActivity
   public void userOk() {
     // go to department fragment
     Toast.makeText(this, "User ok", Toast.LENGTH_SHORT).show();
+    getSupportFragmentManager()
+        .beginTransaction()
+        .replace(R.id.fragment_container, DepartmentFragment.newInstance())
+        .commit();
   }
 
   @Override

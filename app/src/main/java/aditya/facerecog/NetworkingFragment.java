@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 import java.io.BufferedReader;
@@ -104,6 +105,11 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
                 mainHandler.post(new Runnable() {
                   @Override
                   public void run() {
+                    if (TextUtils.isEmpty(result)){
+                      Toast.makeText(getContext(), "Server sent empty response",
+                          Toast.LENGTH_SHORT).show();
+                      return;
+                    }
                     if (result.equalsIgnoreCase("1")) userOk();
                     else userNotOk();
                   }
@@ -121,6 +127,11 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
                 mainHandler.post(new Runnable() {
                   @Override
                   public void run() {
+                    if (TextUtils.isEmpty(result)){
+                      Toast.makeText(getContext(), "Server sent empty response",
+                          Toast.LENGTH_SHORT).show();
+                      return;
+                    }
                     if (result.equalsIgnoreCase("1")) deptOk();
                     else deptNotOk();
                   }

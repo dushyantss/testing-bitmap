@@ -48,8 +48,8 @@ public static LoginFragment newInstance() {
       @Override
       public void onClick(View view) {
       if (isAdded()){
-        ((NetworkUplinkContract) getActivity()).checkUser(username.getText().toString() + "/"
-            + password.getText().toString());
+        ((NetworkUplinkContract) getActivity()).checkUser("Login/" + username.getText().toString()
+            + "/" + password.getText().toString());
       }
       }
     });

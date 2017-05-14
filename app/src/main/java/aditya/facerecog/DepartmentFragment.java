@@ -61,7 +61,7 @@ public class DepartmentFragment extends Fragment {
           String course = (String) courseSpinner.getSelectedItem();
           String semester = (String) semesterSpinner.getSelectedItem();
           String branch = (String) branchSpinner.getSelectedItem();
-          String dept = course + "/" + semester + "/" + branch;
+          String dept ="Department/" + course + "/" + semester + "/" + branch;
           ((NetworkUplinkContract) getActivity()).checkDepartment(dept);
         }
       }

@@ -12,6 +12,7 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -44,6 +45,7 @@ public class NetworkingFragment extends Fragment
       private Socket socket;
       private PrintWriter output;
       private BufferedReader input;
+      private OutputStream outputStream;
 
       @Override
       protected void onLooperPrepared() {
@@ -55,7 +57,8 @@ public class NetworkingFragment extends Fragment
       private void connectToServer() throws IOException {
         InetAddress serverAddr = InetAddress.getByName("192.168.43.67");
         socket = new Socket(serverAddr, 5000);
-        output = new PrintWriter(socket.getOutputStream());
+        outputStream = socket.getOutputStream();
+        output = new PrintWriter(outputStream);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       }
 
@@ -139,9 +142,7 @@ public class NetworkingFragment extends Fragment
                   });
                 } else {
                   byte[] imageData = (byte[]) msg.obj;
-                  String s = new String(imageData);
-                  output.write(s);
-                  output.flush();
+                  outputStream.write(imageData);
                   mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -167,9 +168,9 @@ public class NetworkingFragment extends Fragment
 
           private void closeSocket() {
             try {
-              if (socket != null) socket.close();
               if (output != null) output.close();
               if (input != null) input.close();
+              //if (outputStream != null) outputStream.close();
             } catch (IOException e1) {
               e1.printStackTrace();
             }

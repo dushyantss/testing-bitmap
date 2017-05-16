@@ -126,14 +126,27 @@ public class NetworkingFragment extends Fragment
             } else if (msg.what == 3) {
               try {
                 connectToServer();
-                byte[] imageData = (byte[]) msg.obj;
-                socket.getOutputStream().write(imageData);
-                mainHandler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                   imageOk();
-                  }
-                });
+                output.write("Image");
+                output.flush();
+                String val = input.readLine();
+                if (TextUtils.isEmpty(val) || !val.equals("1")) {
+                  mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      Toast.makeText(getContext(), "Server sent wrong response", Toast.LENGTH_SHORT)
+                          .show();
+                    }
+                  });
+                } else {
+                  byte[] imageData = (byte[]) msg.obj;
+                  socket.getOutputStream().write(imageData);
+                  mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      imageOk();
+                    }
+                  });
+                }
               } catch (IOException e) {
                 e.printStackTrace();
               } finally {
@@ -267,24 +280,24 @@ public class NetworkingFragment extends Fragment
 
 interface NetworkUplinkContract {
 
-  public void checkUser(String userDetails);
+  void checkUser(String userDetails);
 
-  public void checkDepartment(String departmentDetails);
+  void checkDepartment(String departmentDetails);
 
-  public void sendImage(byte[] imageData);
+  void sendImage(byte[] imageData);
 }
 
 interface NetworkDownlinkContract {
 
-  public void userOk();
+  void userOk();
 
-  public void userNotOk();
+  void userNotOk();
 
-  public void deptOk();
+  void deptOk();
 
-  public void deptNotOk();
+  void deptNotOk();
 
-  public void imageOk();
+  void imageOk();
 
-  public void imageNotOk();
+  void imageNotOk();
 }

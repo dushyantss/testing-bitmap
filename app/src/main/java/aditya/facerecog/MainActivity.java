@@ -49,6 +49,11 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
+  public void sendImage(byte[] imageData) {
+    networkingFragment.sendImage(imageData);
+  }
+
+  @Override
   public void userOk() {
     // go to department fragment
     Toast.makeText(this, "User ok", Toast.LENGTH_SHORT).show();
@@ -67,10 +72,24 @@ public class MainActivity extends AppCompatActivity
   public void deptOk() {
     // go to photo fragment
     Toast.makeText(this, "Department OK", Toast.LENGTH_SHORT).show();
+    getSupportFragmentManager()
+        .beginTransaction()
+        .replace(R.id.fragment_container, ImageFragment.newInstance())
+        .commit();
   }
 
   @Override
   public void deptNotOk() {
     Toast.makeText(this, "Department details invalid", Toast.LENGTH_SHORT).show();
+  }
+
+  @Override
+  public void imageOk() {
+    Toast.makeText(this, "Image OK", Toast.LENGTH_SHORT).show();
+  }
+
+  @Override
+  public void imageNotOk() {
+    Toast.makeText(this, "Image Not OK", Toast.LENGTH_SHORT).show();
   }
 }

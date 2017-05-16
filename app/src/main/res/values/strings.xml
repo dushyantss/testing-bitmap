@@ -6,7 +6,7 @@
     <item>BTech</item>
     <item>MTech</item>
   </array>
-  
+
   <array name="semesters_array">
     <item>SEMESTER 1</item>
     <item>SEMESTER 2</item>
@@ -17,7 +17,7 @@
     <item>SEMESTER 7</item>
     <item>SEMESTER 8</item>
   </array>
-  
+
   <array name="branches_array">
     <item>CS</item>
     <item>CIVIL</item>

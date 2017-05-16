@@ -16,7 +16,8 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class NetworkingFragment extends Fragment implements NetworkUplinkContract, NetworkDownlinkContract {
+public class NetworkingFragment extends Fragment
+    implements NetworkUplinkContract, NetworkDownlinkContract {
 
   private Handler mNetworkingHandler;
 
@@ -49,7 +50,6 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
         super.onLooperPrepared();
 
         mNetworkingHandler = getNetworkingHandler(this);
-
       }
 
       private void connectToServer() throws IOException {
@@ -75,67 +75,82 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
           @Override
           public void handleMessage(Message msg) {
             if (msg.what == -1) {
-              try {
-                if (socket != null) socket.close();
-                if (output != null) output.close();
-                if (input != null) input.close();
-              } catch (IOException e1) {
-                e1.printStackTrace();
-              }
+              closeSocket();
               getLooper().quit();
-
             } else if (msg.what == 1) {
               try {
-                connectToServer();
-                String send = (String) msg.obj;
-                output.write(send);
-                output.flush();
-                final String result = input.readLine();
+                final String result = getResultString(msg);
                 mainHandler.post(new Runnable() {
                   @Override
                   public void run() {
-                    if (TextUtils.isEmpty(result)){
-                      Toast.makeText(getContext(), "Server sent empty response",
-                          Toast.LENGTH_SHORT).show();
+                    if (TextUtils.isEmpty(result)) {
+                      Toast.makeText(getContext(), "Server sent empty response", Toast.LENGTH_SHORT)
+                          .show();
                       return;
                     }
-                    if (result.equalsIgnoreCase("1")) userOk();
-                    else userNotOk();
+                    if (result.equalsIgnoreCase("1")) {
+                      userOk();
+                    } else {
+                      userNotOk();
+                    }
                   }
                 });
               } catch (IOException e) {
                 handleIOException(e);
+              } finally {
+                closeSocket();
               }
-
-            } else if (msg.what == 2){
+            } else if (msg.what == 2) {
+              try {
+                final String result = getResultString(msg);
+                mainHandler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    if (TextUtils.isEmpty(result)) {
+                      Toast.makeText(getContext(), "Server sent empty response", Toast.LENGTH_SHORT)
+                          .show();
+                      return;
+                    }
+                    if (result.equalsIgnoreCase("1")) {
+                      deptOk();
+                    } else {
+                      deptNotOk();
+                    }
+                  }
+                });
+              } catch (IOException e) {
+                handleIOException(e);
+              } finally {
+                closeSocket();
+              }
+            } else if (msg.what == 3) {
               try {
                 connectToServer();
-                String send = (String) msg.obj;
-                output.write(send);
-                output.flush();
-                final String result = input.readLine();
+                byte[] imageData = (byte[]) msg.obj;
+                socket.getOutputStream().write(imageData);
                 mainHandler.post(new Runnable() {
                   @Override
                   public void run() {
-                    if (TextUtils.isEmpty(result)){
-                      Toast.makeText(getContext(), "Server sent empty response",
-                          Toast.LENGTH_SHORT).show();
-                      return;
-                    }
-                    if (result.equalsIgnoreCase("1")) deptOk();
-                    else deptNotOk();
+                   imageOk();
                   }
                 });
               } catch (IOException e) {
-                handleIOException(e);
+                e.printStackTrace();
+              } finally {
+                closeSocket();
               }
             }
           }
 
-          private void handleIOException(IOException e) {
-            mainHandler.post(getIOExceptionRunnable());
-            e.printStackTrace();
-            quit();
+          private String getResultString(Message msg) throws IOException {
+            connectToServer();
+            String send = (String) msg.obj;
+            output.write(send);
+            output.flush();
+            return input.readLine();
+          }
+
+          private void closeSocket() {
             try {
               if (socket != null) socket.close();
               if (output != null) output.close();
@@ -143,6 +158,13 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
             } catch (IOException e1) {
               e1.printStackTrace();
             }
+          }
+
+          private void handleIOException(IOException e) {
+            mainHandler.post(getIOExceptionRunnable());
+            e.printStackTrace();
+            quit();
+            closeSocket();
           }
         };
       }
@@ -156,15 +178,16 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
     super.onDestroy();
     Message message = Message.obtain();
     message.what = -1;
-    if (mNetworkingHandler.getLooper() != null
-        && mNetworkingHandler.getLooper().getThread().isAlive()) {
+    if (mNetworkingHandler.getLooper() != null && mNetworkingHandler.getLooper()
+        .getThread()
+        .isAlive()) {
       mNetworkingHandler.sendMessage(message);
     }
   }
 
   @Override
   public void checkUser(String userDetails) {
-    if (mNetworkingHandler != null){
+    if (mNetworkingHandler != null) {
       Message message = Message.obtain();
       message.what = 1;
       message.obj = userDetails;
@@ -174,7 +197,7 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
 
   @Override
   public void checkDepartment(String departmentDetails) {
-    if (mNetworkingHandler != null){
+    if (mNetworkingHandler != null) {
       Message message = Message.obtain();
       message.what = 2;
       message.obj = departmentDetails;
@@ -182,38 +205,62 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
     }
   }
 
+  @Override
+  public void sendImage(byte[] imageData) {
+    if (mNetworkingHandler != null) {
+      Message message = Message.obtain();
+      message.what = 3;
+      message.obj = imageData;
+      mNetworkingHandler.sendMessage(message);
+    }
+  }
+
   public void ioException() {
     Toast.makeText(getContext(), "Network Error, Restart app", Toast.LENGTH_SHORT).show();
-    if (isAdded()){
+    if (isAdded()) {
       getActivity().finish();
     }
   }
 
   @Override
   public void userOk() {
-    if (isAdded()){
+    if (isAdded()) {
       ((NetworkDownlinkContract) getActivity()).userOk();
     }
   }
 
   @Override
   public void userNotOk() {
-    if (isAdded()){
+    if (isAdded()) {
       ((NetworkDownlinkContract) getActivity()).userNotOk();
     }
   }
 
   @Override
   public void deptOk() {
-    if (isAdded()){
+    if (isAdded()) {
       ((NetworkDownlinkContract) getActivity()).deptOk();
     }
   }
 
   @Override
   public void deptNotOk() {
-    if (isAdded()){
+    if (isAdded()) {
       ((NetworkDownlinkContract) getActivity()).deptNotOk();
+    }
+  }
+
+  @Override
+  public void imageOk() {
+    if (isAdded()) {
+      ((NetworkDownlinkContract) getActivity()).imageOk();
+    }
+  }
+
+  @Override
+  public void imageNotOk() {
+    if (isAdded()) {
+      ((NetworkDownlinkContract) getActivity()).imageNotOk();
     }
   }
 }
@@ -223,6 +270,8 @@ interface NetworkUplinkContract {
   public void checkUser(String userDetails);
 
   public void checkDepartment(String departmentDetails);
+
+  public void sendImage(byte[] imageData);
 }
 
 interface NetworkDownlinkContract {
@@ -235,4 +284,7 @@ interface NetworkDownlinkContract {
 
   public void deptNotOk();
 
+  public void imageOk();
+
+  public void imageNotOk();
 }

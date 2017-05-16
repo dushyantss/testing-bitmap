@@ -8,7 +8,6 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,24 +50,13 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
 
         mNetworkingHandler = getNetworkingHandler(this);
 
-        Log.d("ClientActivity", "C: Connecting...");
-        try {
-          InetAddress serverAddr = InetAddress.getByName("192.168.43.67");
-          socket = new Socket(serverAddr, 5000);
-          output = new PrintWriter(socket.getOutputStream());
-          input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        } catch (IOException e) {
-          mainHandler.post(getIOExceptionRunnable());
-          e.printStackTrace();
-          quit();
-          try {
-            if (socket != null) socket.close();
-            if (output != null) output.close();
-            if (input != null) input.close();
-          } catch (IOException e1) {
-            e1.printStackTrace();
-          }
-        }
+      }
+
+      private void connectToServer() throws IOException {
+        InetAddress serverAddr = InetAddress.getByName("192.168.43.67");
+        socket = new Socket(serverAddr, 5000);
+        output = new PrintWriter(socket.getOutputStream());
+        input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       }
 
       @NonNull
@@ -98,6 +86,7 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
 
             } else if (msg.what == 1) {
               try {
+                connectToServer();
                 String send = (String) msg.obj;
                 output.write(send);
                 output.flush();
@@ -120,6 +109,7 @@ public class NetworkingFragment extends Fragment implements NetworkUplinkContrac
 
             } else if (msg.what == 2){
               try {
+                connectToServer();
                 String send = (String) msg.obj;
                 output.write(send);
                 output.flush();

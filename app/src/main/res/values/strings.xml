@@ -3,19 +3,19 @@
   <string name="take_picture">Take Picture</string>
 
   <array name="courses_array">
-    <item>B.Tech</item>
-    <item>M.Tech</item>
+    <item>BTech</item>
+    <item>MTech</item>
   </array>
   
   <array name="semesters_array">
-    <item>First</item>
-    <item>Second</item>
-    <item>Third</item>
-    <item>Fourth</item>
-    <item>Fifth</item>
-    <item>Sixth</item>
-    <item>Seventh</item>
-    <item>Eighth</item>
+    <item>SEMESTER 1</item>
+    <item>SEMESTER 2</item>
+    <item>SEMESTER 3</item>
+    <item>SEMESTER 4</item>
+    <item>SEMESTER 5</item>
+    <item>SEMESTER 6</item>
+    <item>SEMESTER 7</item>
+    <item>SEMESTER 8</item>
   </array>
   
   <array name="branches_array">

@@ -8,7 +8,9 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -55,7 +57,7 @@ public class NetworkingFragment extends Fragment
       }
 
       private void connectToServer() throws IOException {
-        InetAddress serverAddr = InetAddress.getByName("192.168.43.67");
+        InetAddress serverAddr = InetAddress.getByName("192.168.0.149");
         socket = new Socket(serverAddr, 5000);
         outputStream = socket.getOutputStream();
         output = new PrintWriter(outputStream);
@@ -128,10 +130,16 @@ public class NetworkingFragment extends Fragment
               }
             } else if (msg.what == 3) {
               try {
+                Log.d("Data", "sending image data");
                 connectToServer();
                 output.write("Image/0");
                 output.flush();
-                String val = input.readLine();
+                int in = input.read();
+                String val = null;
+                if (in != -1){
+                  val = String.valueOf((char) in);
+                }
+                Log.d("Data", val != null ? val : "val is null");
                 if (TextUtils.isEmpty(val) || !val.equals("1")) {
                   mainHandler.post(new Runnable() {
                     @Override
@@ -142,7 +150,10 @@ public class NetworkingFragment extends Fragment
                   });
                 } else {
                   byte[] imageData = (byte[]) msg.obj;
-                  outputStream.write(imageData);
+                  Log.d("Data", "data is being sent " + imageData.length);
+                  BufferedOutputStream os = new BufferedOutputStream(outputStream);
+                  os.write(imageData);
+                  os.flush();
                   mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -163,7 +174,13 @@ public class NetworkingFragment extends Fragment
             String send = (String) msg.obj;
             output.write(send);
             output.flush();
-            return input.readLine();
+            String val = null;
+            int in = input.read();
+            if (in != -1){
+              val = String.valueOf((char) in);
+            }
+
+            return val;
           }
 
           private void closeSocket() {

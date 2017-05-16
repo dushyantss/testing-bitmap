@@ -126,7 +126,7 @@ public class NetworkingFragment extends Fragment
             } else if (msg.what == 3) {
               try {
                 connectToServer();
-                output.write("Image");
+                output.write("Image/0");
                 output.flush();
                 String val = input.readLine();
                 if (TextUtils.isEmpty(val) || !val.equals("1")) {

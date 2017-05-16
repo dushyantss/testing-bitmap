@@ -139,7 +139,9 @@ public class NetworkingFragment extends Fragment
                   });
                 } else {
                   byte[] imageData = (byte[]) msg.obj;
-                  socket.getOutputStream().write(imageData);
+                  String s = new String(imageData);
+                  output.write(s);
+                  output.flush();
                   mainHandler.post(new Runnable() {
                     @Override
                     public void run() {

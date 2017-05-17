@@ -66,8 +66,8 @@ public class ImageFragment extends Fragment {
 
 
   private byte[] decodeFile() {
-    int targetL = 720;
-    int targetS = 480;
+    double targetL = 720;
+    double targetS = 480;
 
     // Get the dimensions of the bitmap
     BitmapFactory.Options bmOptions = new BitmapFactory.Options();
@@ -79,7 +79,7 @@ public class ImageFragment extends Fragment {
     boolean isPortrait = photoH >= photoW;
 
     // Determine how much to scale down the image
-    long scaleFactor = isPortrait ? photoH / targetL : photoW / targetL;
+    long scaleFactor = (long) (isPortrait ? photoH / targetL : photoW / targetL);
 
     // Decode the image file into a Bitmap sized to fill the View
     bmOptions.inJustDecodeBounds = false;
@@ -87,8 +87,14 @@ public class ImageFragment extends Fragment {
     bmOptions.inPurgeable = true;
 
     Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-    Bitmap newBitmap = Bitmap.createScaledBitmap(bitmap, isPortrait ? targetS : targetL,
-        isPortrait ? targetL : targetS, false);
+
+    double newScaleFactor = isPortrait ? bitmap.getHeight() / targetL : bitmap.getWidth() / targetL;
+
+    int newWidth = (int) (bitmap.getWidth() / newScaleFactor);
+    int newHeight = (int) (bitmap.getHeight() / newScaleFactor);
+
+    Bitmap newBitmap = Bitmap.createScaledBitmap(bitmap, newWidth,
+        newHeight, false);
     return getBytesFromBitmap(newBitmap);
   }
 

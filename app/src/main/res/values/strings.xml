@@ -28,4 +28,6 @@
     <item>ME</item>
   </array>
 
+  <string name="hurray">Hurray!</string>
+
 </resources>

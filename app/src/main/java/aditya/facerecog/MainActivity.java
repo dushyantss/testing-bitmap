@@ -109,6 +109,10 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void studentsOk() {
     Toast.makeText(this, "Students OK", Toast.LENGTH_SHORT).show();
+    getSupportFragmentManager()
+        .beginTransaction()
+        .replace(R.id.fragment_container, DoneFragment.newInstance())
+        .commit();
   }
 
   @Override

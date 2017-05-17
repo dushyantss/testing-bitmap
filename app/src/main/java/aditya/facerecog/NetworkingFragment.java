@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.List;
 
 public class NetworkingFragment extends Fragment
     implements NetworkUplinkContract, NetworkDownlinkContract {
@@ -248,6 +249,16 @@ public class NetworkingFragment extends Fragment
     }
   }
 
+  @Override
+  public void sendStudents(List<Student> students) {
+    if (mNetworkingHandler != null){
+      Message message = Message.obtain();
+      message.what = 4;
+      message.obj = students;
+      mNetworkingHandler.sendMessage(message);
+    }
+  }
+
   public void ioException() {
     Toast.makeText(getContext(), "Network Error, Restart app", Toast.LENGTH_SHORT).show();
     if (isAdded()) {
@@ -296,6 +307,20 @@ public class NetworkingFragment extends Fragment
       ((NetworkDownlinkContract) getActivity()).imageNotOk();
     }
   }
+
+  @Override
+  public void studentsOk() {
+    if (isAdded()) {
+      ((NetworkDownlinkContract) getActivity()).studentsOk();
+    }
+  }
+
+  @Override
+  public void studentsNotOk() {
+    if (isAdded()) {
+      ((NetworkDownlinkContract) getActivity()).studentsNotOk();
+    }
+  }
 }
 
 interface NetworkUplinkContract {
@@ -305,6 +330,8 @@ interface NetworkUplinkContract {
   void checkDepartment(String departmentDetails);
 
   void sendImage(byte[] imageData);
+
+  void sendStudents(List<Student> students);
 }
 
 interface NetworkDownlinkContract {
@@ -320,4 +347,8 @@ interface NetworkDownlinkContract {
   void imageOk();
 
   void imageNotOk();
+
+  void studentsOk();
+
+  void studentsNotOk();
 }

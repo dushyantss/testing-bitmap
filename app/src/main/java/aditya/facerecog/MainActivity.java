@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
     implements NetworkDownlinkContract, NetworkUplinkContract {
@@ -54,6 +55,11 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
+  public void sendStudents(List<Student> students) {
+    networkingFragment.sendStudents(students);
+  }
+
+  @Override
   public void userOk() {
     // go to department fragment
     Toast.makeText(this, "User ok", Toast.LENGTH_SHORT).show();
@@ -91,5 +97,15 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void imageNotOk() {
     Toast.makeText(this, "Image Not OK", Toast.LENGTH_SHORT).show();
+  }
+
+  @Override
+  public void studentsOk() {
+    Toast.makeText(this, "Students OK", Toast.LENGTH_SHORT).show();
+  }
+
+  @Override
+  public void studentsNotOk() {
+    Toast.makeText(this, "Students Not OK", Toast.LENGTH_SHORT).show();
   }
 }

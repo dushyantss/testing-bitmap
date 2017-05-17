@@ -94,8 +94,7 @@ public class NetworkingFragment extends Fragment
                   @Override
                   public void run() {
                     if (TextUtils.isEmpty(result)) {
-                      Toast.makeText(getContext(), "Server sent empty response", Toast.LENGTH_SHORT)
-                          .show();
+                      userNotOk();
                       return;
                     }
                     if (result.equalsIgnoreCase("1")) {
@@ -117,8 +116,7 @@ public class NetworkingFragment extends Fragment
                   @Override
                   public void run() {
                     if (TextUtils.isEmpty(result)) {
-                      Toast.makeText(getContext(), "Server sent empty response", Toast.LENGTH_SHORT)
-                          .show();
+                      deptNotOk();
                       return;
                     }
                     if (result.equalsIgnoreCase("1")) {
@@ -149,8 +147,7 @@ public class NetworkingFragment extends Fragment
                   mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                      Toast.makeText(getContext(), "Server sent wrong response", Toast.LENGTH_SHORT)
-                          .show();
+                      imageNotOk();
                     }
                   });
                 } else {
@@ -167,7 +164,13 @@ public class NetworkingFragment extends Fragment
                   });
                 }
               } catch (IOException e) {
-                e.printStackTrace();
+                handleIOException(e);
+                mainHandler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    imageNotOk();
+                  }
+                });
               } finally {
                 closeSocket();
               }
@@ -185,8 +188,7 @@ public class NetworkingFragment extends Fragment
                   mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                      Toast.makeText(getContext(), "Server sent wrong response", Toast.LENGTH_SHORT)
-                          .show();
+                      studentsNotReceived();
                     }
                   });
                 } else {
@@ -194,7 +196,8 @@ public class NetworkingFragment extends Fragment
                   mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                      studentsReceived(students);
+                      if (students != null) studentsReceived(students);
+                      else studentsNotReceived();
                     }
                   });
                 }
@@ -209,7 +212,60 @@ public class NetworkingFragment extends Fragment
               } finally {
                 closeSocket();
               }
+            } else if (msg.what == 5) {
+              try {
+                connectToServer();
+                output.write("End/0");
+                output.flush();
+                int in = input.read();
+                String val = null;
+                if (in != -1) {
+                  val = String.valueOf((char) in);
+                }
+                if (TextUtils.isEmpty(val) || !val.equals("1")) {
+                  mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      studentsNotOk();
+                    }
+                  });
+                } else {
+                  List<Student> students = (List<Student>) msg.obj;
+                  final String str = createSendStudentsString(students);
+                  output.write(str);
+                  output.flush();
+                  mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      studentsOk();
+                    }
+                  });
+                }
+              } catch (IOException e) {
+                handleIOException(e);
+                mainHandler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    studentsNotOk();
+                  }
+                });
+              } finally {
+                closeSocket();
+              }
             }
+          }
+
+          private String createSendStudentsString(List<Student> students) {
+            StringBuilder builder = new StringBuilder();
+            for (Student student : students) {
+              if (student.isPresent()) {
+                builder.append(student.getRollNumber());
+                builder.append("/");
+              }
+            }
+            builder.append("@@");
+
+            return builder.toString();
           }
 
           private List<Student> fetchStudents() throws IOException {
@@ -217,14 +273,14 @@ public class NetworkingFragment extends Fragment
             char[] arr = new char[1024];
             int count = 0;
             // all the ones present
-            while((i = input.read()) != '@'){
+            while ((i = input.read()) != '@') {
               arr[count++] = (char) i;
             }
             String str = new String(arr);
             Pattern pattern = Pattern.compile("(([^/]+)/([^/]+))");
             Matcher matcher = pattern.matcher(str);
             List<Student> students = new ArrayList<>();
-            while (matcher.find()){
+            while (matcher.find()) {
               String name = matcher.group(2);
               String rollNumber = matcher.group(3);
 
@@ -233,13 +289,13 @@ public class NetworkingFragment extends Fragment
             Arrays.fill(arr, (char) 0);
             count = 0;
             // all the ones absent
-            while ((i = input.read()) != '@'){
+            while ((i = input.read()) != '@') {
               arr[count++] = (char) i;
             }
 
             str = new String(arr);
             matcher = pattern.matcher(str);
-            while (matcher.find()){
+            while (matcher.find()) {
               String name = matcher.group(2);
               String rollNumber = matcher.group(3);
 

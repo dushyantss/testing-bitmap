@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -60,6 +61,11 @@ public class MainActivity extends AppCompatActivity
   }
 
   @Override
+  public void receiveStudents() {
+    networkingFragment.receiveStudents();
+  }
+
+  @Override
   public void userOk() {
     // go to department fragment
     Toast.makeText(this, "User ok", Toast.LENGTH_SHORT).show();
@@ -92,6 +98,7 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void imageOk() {
     Toast.makeText(this, "Image OK", Toast.LENGTH_SHORT).show();
+    receiveStudents();
   }
 
   @Override
@@ -102,6 +109,20 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void studentsOk() {
     Toast.makeText(this, "Students OK", Toast.LENGTH_SHORT).show();
+  }
+
+  @Override
+  public void studentsReceived(List<Student> students) {
+    Toast.makeText(this, "Students Received", Toast.LENGTH_SHORT).show();
+    getSupportFragmentManager()
+        .beginTransaction()
+        .replace(R.id.fragment_container, ListFragment.newInstance((ArrayList<Student>) students))
+        .commit();
+  }
+
+  @Override
+  public void studentsNotReceived() {
+    Toast.makeText(this, "Students Not Received", Toast.LENGTH_SHORT).show();
   }
 
   @Override

@@ -18,7 +18,11 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NetworkingFragment extends Fragment
     implements NetworkUplinkContract, NetworkDownlinkContract {
@@ -58,7 +62,7 @@ public class NetworkingFragment extends Fragment
       }
 
       private void connectToServer() throws IOException {
-        InetAddress serverAddr = InetAddress.getByName("192.168.43.67");
+        InetAddress serverAddr = InetAddress.getByName("192.168.2.9");
         socket = new Socket(serverAddr, 5000);
         outputStream = socket.getOutputStream();
         output = new PrintWriter(outputStream);
@@ -137,7 +141,7 @@ public class NetworkingFragment extends Fragment
                 output.flush();
                 int in = input.read();
                 String val = null;
-                if (in != -1){
+                if (in != -1) {
                   val = String.valueOf((char) in);
                 }
                 Log.d("Data", val != null ? val : "val is null");
@@ -167,7 +171,82 @@ public class NetworkingFragment extends Fragment
               } finally {
                 closeSocket();
               }
+            } else if (msg.what == 4) {
+              try {
+                connectToServer();
+                output.write("Request/0");
+                output.flush();
+                int in = input.read();
+                String val = null;
+                if (in != -1) {
+                  val = String.valueOf((char) in);
+                }
+                if (TextUtils.isEmpty(val) || !val.equals("1")) {
+                  mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      Toast.makeText(getContext(), "Server sent wrong response", Toast.LENGTH_SHORT)
+                          .show();
+                    }
+                  });
+                } else {
+                  final List<Student> students = fetchStudents();
+                  mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      studentsReceived(students);
+                    }
+                  });
+                }
+              } catch (IOException e) {
+                handleIOException(e);
+                mainHandler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    studentsNotReceived();
+                  }
+                });
+              } finally {
+                closeSocket();
+              }
             }
+          }
+
+          private List<Student> fetchStudents() throws IOException {
+            int i;
+            char[] arr = new char[1024];
+            int count = 0;
+            // all the ones present
+            while((i = input.read()) != '@'){
+              arr[count++] = (char) i;
+            }
+            String str = new String(arr);
+            Pattern pattern = Pattern.compile("(([^/]+)/([^/]+))");
+            Matcher matcher = pattern.matcher(str);
+            List<Student> students = new ArrayList<>();
+            while (matcher.find()){
+              String name = matcher.group(2);
+              String rollNumber = matcher.group(3);
+
+              students.add(new Student(rollNumber, name, true));
+            }
+            Arrays.fill(arr, (char) 0);
+            count = 0;
+            // all the ones absent
+            while ((i = input.read()) != '@'){
+              arr[count++] = (char) i;
+            }
+
+            str = new String(arr);
+            matcher = pattern.matcher(str);
+            while (matcher.find()){
+              String name = matcher.group(2);
+              String rollNumber = matcher.group(3);
+
+              students.add(new Student(rollNumber, name, false));
+            }
+
+            return students;
           }
 
           private String getResultString(Message msg) throws IOException {
@@ -177,7 +256,7 @@ public class NetworkingFragment extends Fragment
             output.flush();
             String val = null;
             int in = input.read();
-            if (in != -1){
+            if (in != -1) {
               val = String.valueOf((char) in);
             }
 
@@ -251,10 +330,19 @@ public class NetworkingFragment extends Fragment
 
   @Override
   public void sendStudents(List<Student> students) {
-    if (mNetworkingHandler != null){
+    if (mNetworkingHandler != null) {
+      Message message = Message.obtain();
+      message.what = 5;
+      message.obj = students;
+      mNetworkingHandler.sendMessage(message);
+    }
+  }
+
+  @Override
+  public void receiveStudents() {
+    if (mNetworkingHandler != null) {
       Message message = Message.obtain();
       message.what = 4;
-      message.obj = students;
       mNetworkingHandler.sendMessage(message);
     }
   }
@@ -316,6 +404,20 @@ public class NetworkingFragment extends Fragment
   }
 
   @Override
+  public void studentsReceived(List<Student> students) {
+    if (isAdded()) {
+      ((NetworkDownlinkContract) getActivity()).studentsReceived(students);
+    }
+  }
+
+  @Override
+  public void studentsNotReceived() {
+    if (isAdded()) {
+      ((NetworkDownlinkContract) getActivity()).studentsNotReceived();
+    }
+  }
+
+  @Override
   public void studentsNotOk() {
     if (isAdded()) {
       ((NetworkDownlinkContract) getActivity()).studentsNotOk();
@@ -332,6 +434,8 @@ interface NetworkUplinkContract {
   void sendImage(byte[] imageData);
 
   void sendStudents(List<Student> students);
+
+  void receiveStudents();
 }
 
 interface NetworkDownlinkContract {
@@ -349,6 +453,10 @@ interface NetworkDownlinkContract {
   void imageNotOk();
 
   void studentsOk();
+
+  void studentsReceived(List<Student> students);
+
+  void studentsNotReceived();
 
   void studentsNotOk();
 }

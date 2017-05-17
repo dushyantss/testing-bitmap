@@ -44,7 +44,7 @@ public class ListFragment extends Fragment {
     super.onViewCreated(view, savedInstanceState);
 
     if (getArguments() != null && getArguments().getParcelableArrayList(ARG_STUDENTS) != null){
-      List<Student> students = getArguments().getParcelableArrayList(ARG_STUDENTS);
+      final List<Student> students = getArguments().getParcelableArrayList(ARG_STUDENTS);
 
       RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
       recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
@@ -54,7 +54,7 @@ public class ListFragment extends Fragment {
       fabDone.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+          ((NetworkUplinkContract) getActivity()).sendStudents(students);
         }
       });
 

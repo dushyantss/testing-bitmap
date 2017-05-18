@@ -62,7 +62,7 @@ public class NetworkingFragment extends Fragment
       }
 
       private void connectToServer() throws IOException {
-        InetAddress serverAddr = InetAddress.getByName("192.168.2.9");
+        InetAddress serverAddr = InetAddress.getByName("192.168.43.67");
         socket = new Socket(serverAddr, 5000);
         outputStream = socket.getOutputStream();
         output = new PrintWriter(outputStream);
